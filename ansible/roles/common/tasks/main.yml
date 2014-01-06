@@ -11,6 +11,7 @@
       - python-apt
       - python-pycurl
       - python-software-properties
+      - git
 
   - name: install required python packages
-    pip: name=python-digitalocean state=presetn
+    pip: name=dopy state=present
