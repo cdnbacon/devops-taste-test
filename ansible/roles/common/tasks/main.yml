@@ -1,14 +1,12 @@
 ---
-- hosts: all
-  tasks:
-  - name: ensure required system packages are installed
-    action: apt pkg={{item}} state=installed update-cache=yes
-    sudo: yes
-    with_items:
-      - build-essential
-      - python-setuptools
-      - python-pip
-      - python-apt
-      - python-pycurl
-      - python-software-properties
-      - git
+- name: ensure required system packages are installed
+  action: apt pkg={{item}} state=installed update-cache=yes
+  sudo: yes
+  with_items:
+    - build-essential
+    - python-setuptools
+    - python-pip
+    - python-apt
+    - python-pycurl
+    - python-software-properties
+    - git

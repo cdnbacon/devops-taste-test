@@ -1,5 +1,3 @@
 ---
-- hosts: couch
-  tasks:
-  - include: couchdb.yml
-  - include: nginx.yml
+- include: couchdb.yml
+- include: nginx.yml
