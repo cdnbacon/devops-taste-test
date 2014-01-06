@@ -1,0 +1,5 @@
+---
+- hosts: couch
+  roles:
+     - common
+     - couchdb
