@@ -4,7 +4,10 @@
     new_server_name: couchdb-preview2
   tasks:
   - name: ensure required python packages
-    pip: name=dopy state=present
+    pip: name={{ item }} state=present
+    with_items:
+      - dopy
+      - boto
 
   - name: provision a small server on digital ocean
     # from https://api.digitalocean.com/ssh_keys
@@ -24,3 +27,14 @@
     register: my_droplet
   - debug: msg="ID is {{ my_droplet.droplet.id }}"
   - debug: msg="IP is {{ my_droplet.droplet.ip_address }}"
+
+  - name: register DNS entry
+    route53: >
+      command=create
+      zone=busbud.com
+      record="do-{{ new_server_name }}.busbud.com"
+      type=A
+      ttl=300
+      value="{{ my_droplet.droplet.ip_address }}"
+    register: my_dns_entry
+  - debug: msg="DNS entry is {{ my_dns_entry }}"
