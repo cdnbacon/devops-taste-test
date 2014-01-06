@@ -1,0 +1,23 @@
+---
+- hosts: local
+  vars:
+    new_server_name: couchdb-preview2
+  tasks:
+  - name: provision a small server on digital ocean
+    # from https://api.digitalocean.com/ssh_keys
+    # 512MB, 1 CPU, 20GB SSD  from https://api.digitalocean.com/sizes
+    # nyc2                    from https://api.digitalocean.com/regions
+    # Ubuntu 12.10 x32        from https://api.digitalocean.com/images
+    digital_ocean: >
+        state=present
+        command=droplet
+        unique_name=yes
+        ssh_key_ids=39273,39274,39275,39278,39497
+        name={{ new_server_name }}
+        size_id=66
+        region_id=4
+        image_id=433240
+        wait_timeout=500
+    register: my_droplet
+  - debug: msg="ID is {{ my_droplet.droplet.id }}"
+  - debug: msg="IP is {{ my_droplet.droplet.ip_address }}"

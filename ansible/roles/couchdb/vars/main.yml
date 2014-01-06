@@ -1,0 +1,4 @@
+---
+busbud_cert_dir: /home/busbud/certs
+busbud_cert_path: /home/busbud/certs/busbud.com.pem
+busbud_cert_key_path: /home/busbud/certs/busbud.com.key

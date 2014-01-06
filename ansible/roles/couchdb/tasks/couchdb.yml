@@ -1,0 +1,11 @@
+---
+- hosts: couch
+  tasks:
+  - name: get latest couchdb build
+    apt_repository: repo='ppa:nilya/couchdb-1.3'
+
+  - name: ensure couchdb is installed
+    apt: pkg=couchdb state=latest update_cache=yes
+
+  - name: ensure couchdb is running
+    service name=couchdb state=started
