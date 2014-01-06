@@ -1,0 +1,6 @@
+---
+- hosts: local
+  tasks:
+  - name: pull the repo locally
+    git: repo=git://github.com/cdnbacon/devops-taste-test.git
+         dest=/home/devops-taste-test
