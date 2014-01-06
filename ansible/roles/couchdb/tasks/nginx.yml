@@ -1,47 +1,43 @@
 ---
-- hosts: couch
-  # Required ENV vars
-  #  export BUSBUD_SSL_CERTIFICATE=$(cat busbud.com.pem)
-  #  export BUSBUD_SSL_CERTIFICATE_KEY=$(cat busbud.com.key)
-  #  export BUSBUD_COUCHDB_AUTHUSER=...
-  #  export BUSBUD_COUCHDB_AUTHPASSWORD=...
-  vars_files:
-    - ../vars/main.yml
-  tasks:
-  # Setup nginx for SSL termination
-  - name: get latest nginx build
-    apt_repository: repo='ppa:nginx/stable'
+# Setup nginx for SSL termination
+# Required ENV vars
+#  export BUSBUD_SSL_CERTIFICATE=$(cat busbud.com.pem)
+#  export BUSBUD_SSL_CERTIFICATE_KEY=$(cat busbud.com.key)
+#  export BUSBUD_COUCHDB_AUTHUSER=...
+#  export BUSBUD_COUCHDB_AUTHPASSWORD=...
+- name: get latest nginx build
+  apt_repository: repo='ppa:nginx/stable'
 
-  - name: ensure nginx is installed
-    apt: pkg=nginx state=latest update_cache=yes
+- name: ensure nginx is installed
+  apt: pkg=nginx state=latest update_cache=yes
 
-  - name: setup SSL cert dir
-    command: mkdir -p /home/busbud/certs
+- name: setup SSL cert dir
+  command: mkdir -p /home/busbud/certs
 
-  - name: setup SSL cert
-    copy: content="{{ lookup('env', 'BUSBUD_SSL_CERTIFICATE') }}" dest=/home/busbud/certs/busbud.com.pem
+- name: setup SSL cert
+  copy: content="{{ lookup('env', 'BUSBUD_SSL_CERTIFICATE') }}" dest=/home/busbud/certs/busbud.com.pem
 
-  - name: setup SSL cert key
-    copy: content="{{ lookup('env', 'BUSBUD_SSL_CERTIFICATE_KEY') }}" dest=/home/busbud/certs/busbud.com.key
+- name: setup SSL cert key
+  copy: content="{{ lookup('env', 'BUSBUD_SSL_CERTIFICATE_KEY') }}" dest=/home/busbud/certs/busbud.com.key
 
-  - name: setup basic auth password
-    command: "openssl passwd -apr1 {{lookup('env', 'BUSBUD_COUCHDB_AUTHPASSWORD') }}"
-    register: basic_auth_password
+- name: setup basic auth password
+  command: "openssl passwd -apr1 {{lookup('env', 'BUSBUD_COUCHDB_AUTHPASSWORD') }}"
+  register: basic_auth_password
 
-  - name: setup basic auth record
-    command: printf "{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}:{{ item }}\n"
-    register: basic_auth_record
-    with_items: basic_auth_password.stdout_lines
+- name: setup basic auth record
+  command: printf "{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}:{{ item }}\n"
+  register: basic_auth_record
+  with_items: basic_auth_password.stdout_lines
 
-  - name: add the basic auth entry
-    lineinfile: dest=/etc/nginx/htpasswd regexp="^{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}" line="{{ item.stdout }}" create=yes state=present
-    with_items: basic_auth_record.results
+- name: add the basic auth entry
+  lineinfile: dest=/etc/nginx/htpasswd regexp="^{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}" line="{{ item.stdout }}" create=yes state=present
+  with_items: basic_auth_record.results
 
-  - name: configure nginx as SSL terminator
-    template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/busbud
+- name: configure nginx as SSL terminator
+  template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/busbud
 
-  - name: link to SSL termination config
-    command: ln -v -s -f /etc/nginx/sites-available/busbud /etc/nginx/sites-enabled/busbud
+- name: link to SSL termination config
+  command: ln -v -s -f /etc/nginx/sites-available/busbud /etc/nginx/sites-enabled/busbud
 
-  - name: ensure nginx is running
-    action: service name=nginx state=started
+- name: ensure nginx is running
+  action: service name=nginx state=started
