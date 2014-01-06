@@ -21,7 +21,7 @@
     apt: pkg=couchdb state=latest update_cache=yes
 
   - name: ensure couchdb is running
-    service name=couchdb state=started
+    action: service name=couchdb state=started
 
   # Setup nginx for SSL termination
   # Required ENV vars
