@@ -15,7 +15,7 @@
         state=present
         command=droplet
         unique_name=yes
-        ssh_key_ids=39273,39274,39275,39278,39497
+        ssh_key_ids=39273,39274,39275,39278,39497,67839
         name={{ new_server_name }}
         size_id=66
         region_id=4
