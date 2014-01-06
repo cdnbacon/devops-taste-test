@@ -44,18 +44,9 @@
   - name: setup SSL cert key
     copy: content="{{ lookup('env', 'BUSBUD_SSL_CERTIFICATE_KEY') }}" dest=/home/busbud/certs/busbud.com.key
 
-  - name: setup basic auth password
-    command: "openssl passwd -apr1 {{lookup('env', 'BUSBUD_COUCHDB_AUTHPASSWORD') }}"
-    register: basic_auth_password
-
-  - name: setup basic auth record
-    command: printf "{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}:{{ item }}\n"
-    register: basic_auth_record
-    with_items: basic_auth_password.stdout_lines
-
-  - name: add the basic auth entry
-    lineinfile: dest=/etc/nginx/htpasswd regexp="^{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}" line="{{ item.stdout }}" create=yes state=present
-    with_items: basic_auth_record.results
+  - pip: name=passlib state=present
+  - name: Add a user to a password file and ensure permissions are set
+    htpasswd: path=/etc/nginx/htpasswd name="{{ lookup('env', 'BUSBUD_COUCHDB_AUTHUSER') }}" password="{{lookup('env', 'BUSBUD_COUCHDB_AUTHPASSWORD') }}" state=present owner=root group=www-data mode=0640
 
   - name: configure nginx as SSL terminator
     template: src=./roles/couchdb/templates/nginx.conf.j2 dest=/etc/nginx/sites-available/busbud
